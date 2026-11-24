@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vehicle Info Finder</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #22022c, #3b0a45);
+      text-align: center;
+      padding: 50px;
+      color: white;
+    }
+    h1 {
+      color: #ffcc00;
+      margin-bottom: 20px;
+    }
+    .input-group {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    input {
+      padding: 10px;
+      width: 250px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .result-card {
+      margin-top: 20px;
+      padding: 20px;
+      background: #fff;
+      color: #222;
+      border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+      display: inline-block;
+      min-width: 280px;
+      transition: 0.4s ease-in-out;
+    }
+    .error {
+      color: #ff4d4d;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .history {
+      margin-top: 30px;
+      text-align: left;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+      color: #ddd;
+    }
+    .history h3 {
+      margin-bottom: 10px;
+      color: #ffcc00;
+    }
+    .history ul {
+      list-style: none;
+      padding: 0;
+    }
+    .history li {
+      background: rgba(255,255,255,0.1);
+      margin: 5px 0;
+      padding: 8px;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🚘 Vehicle Number → State & Region</h1>
+  
+  <div class="input-group">
+    <input type="text" id="vehicleInput" placeholder="Enter vehicle no (e.g. MH12AB1234)">
+    <button onclick="findInfo()">Find Info</button>
+    <button onclick="clearInput()" style="background:#dc3545;">Clear</button>
+  </div>
+  
+  <div id="result"></div>
+  <div class="error" id="error"></div>
+  
+  <div class="history" id="history">
+    <h3>🔎 Search History</h3>
+    <ul id="historyList"></ul>
+  </div>
+
+  <script>
+    // State codes
+    const stateCodes = {
+      "MH": "Maharashtra",
+      "DL": "Delhi",
+      "KA": "Karnataka",
+      "TN": "Tamil Nadu",
+      "GJ": "Gujarat",
+      "UP": "Uttar Pradesh",
+      "RJ": "Rajasthan",
+      "WB": "West Bengal",
+      "PB": "Punjab"
+    };
+
+    // RTO codes (sample)
+    const rtoCodes = {
+      "MH01": "Mumbai (South)",
+      "MH12": "Pune",
+      "MH14": "Pimpri-Chinchwad",
+      "DL01": "Delhi (Mall Road)",
+      "DL02": "Delhi (Tilak Marg)",
+      "KA01": "Bengaluru (Central)",
+      "TN01": "Chennai (Central)"
+    };
+
+    let historyList = [];
+
+    function findInfo() {
+      let input = document.getElementById("vehicleInput").value.toUpperCase().trim();
+      let errorBox = document.getElementById("error");
+      let resultBox = document.getElementById("result");
+      errorBox.innerHTML = "";
+      resultBox.innerHTML = "";
+
+      if (!/^[A-Z]{2}\d{1,2}[A-Z]{0,2}\d{4}$/.test(input)) {
+        errorBox.innerHTML = "⚠️ Invalid vehicle number format!";
+        return;
+      }
+
+      let stateCode = input.slice(0, 2);
+      let rtoCode = input.slice(0, 4);
+      
+      let result = `<div class='result-card'>`;
+      if(stateCodes[stateCode]) {
+        result += `<p><b>State:</b> ${stateCodes[stateCode]}</p>`;
+      } else {
+        result += `<p><b>State:</b> Unknown</p>`;
+      }
+
+      if(rtoCodes[rtoCode]) {
+        result += `<p><b>RTO/Region:</b> ${rtoCodes[rtoCode]}</p>`;
+      } else {
+        result += `<p><b>RTO/Region:</b> Unknown</p>`;
+      }
+      result += `</div>`;
+
+      resultBox.innerHTML = result;
+
+      // Save to history
+      historyList.unshift(input);
+      updateHistory();
+    }
+
+    function clearInput() {
+      document.getElementById("vehicleInput").value = "";
+      document.getElementById("result").innerHTML = "";
+      document.getElementById("error").innerHTML = "";
+    }
+
+    function updateHistory() {
+      let ul = document.getElementById("historyList");
+      ul.innerHTML = "";
+      historyList.slice(0, 5).forEach(num => {
+        let li = document.createElement("li");
+        li.textContent = num;
+        ul.appendChild(li);
+      });
+    }
+
+    // Live search (press Enter or type)
+    document.getElementById("vehicleInput").addEventListener("keyup", function(e) {
+      if (e.key === "Enter") {
+        findInfo();
+      }
+    });
+  </script>
+</body>
+</html>
